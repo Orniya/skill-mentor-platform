@@ -1,6 +1,6 @@
 # Skill Mentor v0
 
-A full-stack web app that gives **personalized tech stack recommendations** and **custom learning roadmaps** for developers. Built with Next.js, React, TypeScript, Tailwind CSS, and Supabase. No paid APIs—recommendations are rule-based.
+A full-stack web app that gives **personalized tech stack recommendations** and **custom learning roadmaps** for developers. Built with Next.js, React, TypeScript, Tailwind CSS, and Supabase. recommendations are rule-based.
 
 ## Features
 
@@ -14,7 +14,7 @@ A full-stack web app that gives **personalized tech stack recommendations** and 
 
 ## Tech stack
 
-- **Framework**: Next.js 15 (App Router), React 19, TypeScript
+- **Framework**: Next.js 15 (App Router), React 19, TypeScript 
 - **Styling**: Tailwind CSS v4, custom UI components (button, card, input, label, dialog)
 - **Auth & DB**: Supabase (Auth + PostgreSQL with RLS)
 - **State**: React hooks (useState, useEffect); client components where needed
