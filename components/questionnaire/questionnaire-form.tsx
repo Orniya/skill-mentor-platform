@@ -7,21 +7,23 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { INTERESTS_CONFIG, TIME_LABELS } from "@/lib/stack-config";
-import type { Interest, TimeCommitment } from "@/lib/types";
+import type { Interest, LearningPriority, TimeCommitment } from "@/lib/types";
 
-const STEPS = 2;
+const STEPS = 3;
 
 export function QuestionnaireForm() {
   const [step, setStep] = useState(1);
-  const [interest, setInterest] = useState<Interest | "">("");
-  const [time_commitment, setTime_commitment] = useState<TimeCommitment | "">("");
+  const [goal, setGoal] = useState<Interest | "">("");
+  const [time, setTime] = useState<TimeCommitment | "">("");
+  const [priority, setPriority] = useState<LearningPriority | "">("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
   const canNext =
-    (step === 1 && interest) ||
-    (step === 2 && time_commitment);
+    (step === 1 && goal) ||
+    (step === 2 && time) ||
+    (step === 3 && priority);
 
   function handleNext() {
     if (step < STEPS) setStep(step + 1);
@@ -32,14 +34,18 @@ export function QuestionnaireForm() {
   }
 
   async function handleSubmit() {
-    if (!interest || !time_commitment) return;
+    if (!goal || !time || !priority) return;
     setError(null);
     setLoading(true);
     try {
       const res = await fetch("/api/recommendations", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ interest, time_commitment }),
+        body: JSON.stringify({
+          goal,
+          time,
+          priority,
+        }),
       });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
@@ -67,7 +73,7 @@ export function QuestionnaireForm() {
       <CardContent className="space-y-6">
         {step === 1 && (
           <div className="space-y-3">
-            <Label>What area interests you most?</Label>
+            <Label>What area do you want to focus on?</Label>
             <p className="text-sm text-slate-600 dark:text-slate-400">
               <Link
                 href="/protected/stacks"
@@ -83,9 +89,9 @@ export function QuestionnaireForm() {
                   <button
                     type="button"
                     title={description}
-                    onClick={() => setInterest(id)}
+                    onClick={() => setGoal(id)}
                     className={`w-full rounded-lg border px-4 py-3 text-left text-sm transition-colors ${
-                      interest === id
+                      goal === id
                         ? "border-teal-500 bg-teal-50 dark:bg-teal-900/20 text-teal-700 dark:text-teal-300"
                         : "border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800"
                     }`}
@@ -113,9 +119,9 @@ export function QuestionnaireForm() {
                   <button
                     key={value}
                     type="button"
-                    onClick={() => setTime_commitment(value)}
+                    onClick={() => setTime(value)}
                     className={`rounded-lg border px-4 py-3 text-left text-sm transition-colors ${
-                      time_commitment === value
+                      time === value
                         ? "border-teal-500 bg-teal-50 dark:bg-teal-900/20 text-teal-700 dark:text-teal-300"
                         : "border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800"
                     }`}
@@ -124,6 +130,31 @@ export function QuestionnaireForm() {
                   </button>
                 )
               )}
+            </div>
+          </div>
+        )}
+        {step === 3 && (
+          <div className="space-y-3">
+            <Label>What is your main priority?</Label>
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+              {([
+                { id: "job_fast", label: "Get a job as fast as possible" },
+                { id: "deep_understanding", label: "Build deep fundamentals" },
+                { id: "build_projects", label: "Build real projects quickly" },
+              ] as { id: LearningPriority; label: string }[]).map((option) => (
+                <button
+                  key={option.id}
+                  type="button"
+                  onClick={() => setPriority(option.id)}
+                  className={`rounded-lg border px-4 py-3 text-left text-sm transition-colors ${
+                    priority === option.id
+                      ? "border-teal-500 bg-teal-50 dark:bg-teal-900/20 text-teal-700 dark:text-teal-300"
+                      : "border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800"
+                  }`}
+                >
+                  {option.label}
+                </button>
+              ))}
             </div>
           </div>
         )}

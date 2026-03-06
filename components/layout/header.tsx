@@ -9,7 +9,7 @@ export function Header() {
           href="/protected"
           className="text-xl font-semibold text-teal-700 dark:text-teal-400"
         >
-          Skill Mentor
+          SkillMentor💡
         </Link>
         <nav className="flex items-center gap-4">
           <Link

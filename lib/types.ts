@@ -23,6 +23,8 @@ export type ExperienceLevel = "beginner" | "intermediate" | "advanced";
 
 export type TimeCommitment = "low" | "medium" | "high";
 
+export type LearningPriority = "job_fast" | "deep_understanding" | "build_projects";
+
 export interface UserPreferences {
   user_id: string;
   interest: Interest;
@@ -76,9 +78,20 @@ export interface SavedRoadmap {
 }
 
 export interface RecommendationResult {
-  /** All stacks for the chosen interest, ordered easiest to hardest */
-  stacks: TechStack[];
-  time_commitment: TimeCommitment;
+  // Legacy multi-stack mode (used for non-frontend goals)
+  stacks?: TechStack[];
+  time_commitment?: TimeCommitment;
+
+  // Single-roadmap mode (used for special frontend combinations)
+  stack?: string;
+  reason?: string;
+  roadmap?: {
+    phases: {
+      title: string;
+      duration: string;
+      topics: string[];
+    }[];
+  };
 }
 
 /** Detailed phase for roadmap (topics + optional projects) */
@@ -98,6 +111,10 @@ export interface RoadmapByTime {
 }
 
 export interface QuestionnaireAnswers {
-  interest: Interest;
-  time_commitment: TimeCommitment;
+  /** Goal = broad area like frontend, backend, mobile, etc. */
+  goal: Interest;
+  /** Priority = how they want to optimize the roadmap */
+  priority: LearningPriority;
+  /** Time = low/medium/high time commitment */
+  time: TimeCommitment;
 }

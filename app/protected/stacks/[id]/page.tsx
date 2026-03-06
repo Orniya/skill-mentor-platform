@@ -3,13 +3,16 @@
 import { useParams, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { getAllStacks } from "@/lib/recommendation-engine";
+import { getAllStacks } from "@/lib/stack-config";
 import { getDetailedRoadmap } from "@/lib/roadmaps-detail";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import type { TechStack } from "@/lib/types";
-import type { TimeCommitment } from "@/lib/types";
-import type { RoadmapPhaseDetail } from "@/lib/types";
+import type {
+  RoadmapPhase,
+  RoadmapPhaseDetail,
+  TechStack,
+  TimeCommitment,
+} from "@/lib/types";
 
 export default function StackDetailPage() {
   const params = useParams();
@@ -21,6 +24,9 @@ export default function StackDetailPage() {
   const [roadmap, setRoadmap] = useState<RoadmapPhaseDetail[]>([]);
   const [completedPhases, setCompletedPhases] = useState<number[]>([]);
   const [loadingProgress, setLoadingProgress] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const [saveSuccess, setSaveSuccess] = useState(false);
 
   useEffect(() => {
     const all = getAllStacks();
@@ -51,6 +57,47 @@ export default function StackDetailPage() {
       .catch(() => setCompletedPhases([]))
       .finally(() => setLoadingProgress(false));
   }, [id]);
+
+  async function handleSaveRoadmap() {
+    if (!stack || roadmap.length === 0 || saving) return;
+    setSaving(true);
+    setSaveError(null);
+    setSaveSuccess(false);
+
+    const simplified: RoadmapPhase[] = roadmap.map((phase) => ({
+      phase: phase.phase,
+      title: phase.title,
+      duration_weeks: parseInt(phase.duration, 10) || 0,
+      topics: phase.topics,
+    }));
+
+    const reasoning = `Saved roadmap for ${stack.name} with ${time} time commitment.`;
+
+    try {
+      const res = await fetch("/api/recommendations/save", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          stack_name: stack.name,
+          roadmap: simplified,
+          reasoning,
+        }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error ?? `Failed to save roadmap (${res.status})`);
+      }
+      setSaveSuccess(true);
+    } catch (e) {
+      setSaveError(
+        e instanceof Error
+          ? e.message
+          : "Could not save roadmap. Please try again.",
+      );
+    } finally {
+      setSaving(false);
+    }
+  }
 
   function togglePhase(phaseNum: number) {
     const next = completedPhases.includes(phaseNum)
@@ -194,6 +241,26 @@ export default function StackDetailPage() {
               ))}
             </ol>
           )}
+
+          <div className="mt-6 flex flex-wrap items-center gap-3">
+            <Button
+              type="button"
+              onClick={handleSaveRoadmap}
+              disabled={saving || roadmap.length === 0}
+            >
+              {saving ? "Saving roadmap..." : "Save roadmap to profile"}
+            </Button>
+            {saveSuccess && (
+              <p className="text-sm text-teal-600 dark:text-teal-400">
+                Roadmap saved. You can find it under your profile&apos;s saved roadmaps.
+              </p>
+            )}
+            {saveError && (
+              <p className="text-sm text-red-500 dark:text-red-400" role="alert">
+                {saveError}
+              </p>
+            )}
+          </div>
         </CardContent>
       </Card>
 

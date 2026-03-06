@@ -15,7 +15,9 @@ export default function ResultsPage() {
     const dataParam = searchParams.get("data");
     if (dataParam) {
       try {
-        const parsed = JSON.parse(decodeURIComponent(dataParam)) as RecommendationResult;
+        const parsed = JSON.parse(
+          decodeURIComponent(dataParam),
+        ) as RecommendationResult;
         setResult(parsed);
       } catch {
         setResult(null);
@@ -36,7 +38,76 @@ export default function ResultsPage() {
     );
   }
 
-  const { stacks, time_commitment } = result;
+  const isRoadmapMode =
+    result.stack && result.reason && result.roadmap && result.roadmap.phases;
+
+  if (isRoadmapMode) {
+    const { stack, reason, roadmap } = result;
+
+    return (
+      <div className="max-w-3xl mx-auto space-y-8">
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
+          Your personalized roadmap
+        </h1>
+        <p className="text-slate-600 dark:text-slate-400">
+          Based on your goal, priority, and time, here&apos;s the recommended
+          stack and a focused roadmap you can follow.
+        </p>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">
+              Recommended stack: {stack}
+            </CardTitle>
+            <p className="text-sm text-slate-600 dark:text-slate-400">
+              {reason}
+            </p>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50">
+              Roadmap
+            </h2>
+            <ol className="space-y-4">
+              {roadmap!.phases.map((phase, index) => (
+                <li
+                  key={index}
+                  className="rounded-lg border border-slate-200 dark:border-slate-700 p-4"
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <p className="font-medium text-slate-900 dark:text-slate-50">
+                      {phase.title}
+                    </p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                      {phase.duration}
+                    </p>
+                  </div>
+                  {phase.topics.length > 0 && (
+                    <ul className="mt-2 list-disc list-inside text-sm text-slate-600 dark:text-slate-400">
+                      {phase.topics.map((topic, i) => (
+                        <li key={i}>{topic}</li>
+                      ))}
+                    </ul>
+                  )}
+                </li>
+              ))}
+            </ol>
+          </CardContent>
+        </Card>
+
+        <div className="flex gap-2">
+          <Button variant="outline" asChild>
+            <Link href="/protected/questionnaire">Start over</Link>
+          </Button>
+          <Button variant="outline" asChild>
+            <Link href="/protected/stacks">Browse all stacks</Link>
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  // Legacy multi-stack mode (non-frontend or non-special combinations)
+  const { stacks = [], time_commitment } = result;
   const timeParam = time_commitment || "medium";
 
   return (
@@ -46,8 +117,8 @@ export default function ResultsPage() {
       </h1>
       <p className="text-slate-600 dark:text-slate-400">
         Listed from easiest / beginner-friendly to more complex. Choose a stack
-        and click &quot;Learn more&quot; for full description, pros &amp; cons, and a
-        detailed roadmap (with checkboxes to track your progress).
+        and click &quot;Learn more&quot; for full description, pros &amp; cons, and
+        a detailed roadmap (with checkboxes to track your progress).
       </p>
 
       <div className="space-y-4">

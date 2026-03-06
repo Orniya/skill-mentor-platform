@@ -17,22 +17,29 @@ export async function POST(request: Request) {
     }
 
     const body = (await request.json()) as QuestionnaireAnswers;
-    const { interest, time_commitment } = body;
-    if (!interest || !time_commitment) {
+    const { goal, priority, time } = body;
+    if (!goal || !priority || !time) {
       return NextResponse.json(
-        { error: "Missing interest or time_commitment" },
-        { status: 400 }
+        {
+          error: "Missing goal, priority, or time",
+        },
+        { status: 400 },
       );
     }
 
-    const result = getRecommendation({ interest, time_commitment });
+    const result = getRecommendation({
+      goal,
+      priority,
+      time,
+    });
 
     try {
       await supabase.from("user_preferences").upsert(
         {
           user_id: user.id,
-          interest,
-          time_commitment,
+          interest: goal,
+          time_commitment: time,
+          // Keep table compatible by storing generic defaults
           preference: "design",
           experience_level: "beginner",
         },

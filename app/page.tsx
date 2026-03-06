@@ -6,7 +6,7 @@ export default function LandingPage() {
       <header className="border-b border-slate-200 dark:border-slate-800">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <span className="text-xl font-semibold text-teal-700 dark:text-teal-400">
-            Skill Mentor
+            SkillMentor💡
           </span>
           <nav className="flex gap-4">
             <Link
@@ -28,11 +28,11 @@ export default function LandingPage() {
       <main className="flex-1 container mx-auto px-4 py-16 md:py-24">
         <section className="max-w-3xl mx-auto text-center">
           <h1 className="text-4xl md:text-5xl font-bold text-slate-900 dark:text-white mb-4">
-            Your personalized tech stack & learning path
+            Your tech stack & learning path recommendation platform
           </h1>
           <p className="text-lg text-slate-600 dark:text-slate-400 mb-8">
-            Answer a short questionnaire and get a tailored recommendation plus a
-            step-by-step roadmap—no paid APIs, just clear guidance.
+            Answer a short questionnaire and get a recommendation plus a
+            step-by-step roadmap.
           </p>
           <Link
             href="/auth/sign-up"
@@ -84,7 +84,8 @@ export default function LandingPage() {
 
       <footer className="border-t border-slate-200 dark:border-slate-800 py-6">
         <div className="container mx-auto px-4 text-center text-slate-500 dark:text-slate-400 text-sm">
-          Skill Mentor v0 — Personalized tech stack & learning roadmaps
+          Skill Mentor v0 — Personalized tech stack & learning roadmaps 
+          <p> &copy; 2026. All rights reserved.</p>
         </div>
       </footer>
     </div>

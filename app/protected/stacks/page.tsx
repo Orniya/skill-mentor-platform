@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react";
 import Link from "next/link";
-import { getAllStacks, STACKS_BY_INTEREST } from "@/lib/recommendation-engine";
+import { getAllStacks, STACKS_BY_INTEREST } from "@/lib/stack-config";
 import { INTERESTS_CONFIG, PREFERENCES_CONFIG } from "@/lib/stack-config";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
