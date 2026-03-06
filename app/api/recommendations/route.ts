@@ -50,13 +50,17 @@ export async function POST(request: Request) {
     }
 
     try {
-      await supabase.from("recommended_stacks").insert({
-        user_id: user.id,
-        interest_area: interest,
-        primary_stack: result.stacks[0]?.name ?? "",
-        alternatives: result.stacks.slice(1, 11).map((s) => s.name),
-        reasoning: `Stacks for ${interest} (${time_commitment} time).`,
-      });
+      // Only log into recommended_stacks if we are in the multi-stack mode
+      // (legacy path where result.stacks is present).
+      if (Array.isArray(result.stacks) && result.stacks.length > 0) {
+        await supabase.from("recommended_stacks").insert({
+          user_id: user.id,
+          interest_area: goal,
+          primary_stack: result.stacks[0]?.name ?? "",
+          alternatives: result.stacks.slice(1, 11).map((s) => s.name),
+          reasoning: `Stacks for ${goal} (${time} time).`,
+        });
+      }
     } catch (e) {
       console.log("[v0] recommended_stacks insert failed:", e);
     }
