@@ -360,7 +360,7 @@ export default async function DashboardPage() {
                       </div>
                       <Button
                         asChild
-                        size="xs"
+                        size="sm"
                         variant="outline"
                         className="inline-flex items-center gap-1 rounded-full border-slate-700 bg-slate-900 px-2.5 py-1 text-[11px] font-medium text-slate-200 transition group-hover:border-teal-400 group-hover:text-teal-200"
                       >
