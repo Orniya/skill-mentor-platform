@@ -1,5 +1,6 @@
-"use client";
+ "use client";
 
+import { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import Link from "next/link";
@@ -7,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { RecommendationResult, TechStack } from "@/lib/types";
 
-export default function ResultsPage() {
+function ResultsContent() {
   const searchParams = useSearchParams();
   const [result, setResult] = useState<RecommendationResult | null>(null);
   const [loading, setLoading] = useState(false);
@@ -245,5 +246,19 @@ export default function ResultsPage() {
         </Button>
       </div>
     </div>
+  );
+}
+
+export default function ResultsPage() {
+  return (
+    <Suspense fallback={
+      <div className="max-w-xl mx-auto text-center py-12">
+        <p className="text-slate-600 dark:text-slate-400 mb-2">
+          Loading your roadmap…
+        </p>
+      </div>
+    }>
+      <ResultsContent />
+    </Suspense>
   );
 }
