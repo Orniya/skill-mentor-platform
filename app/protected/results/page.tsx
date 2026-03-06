@@ -10,26 +10,116 @@ import type { RecommendationResult, TechStack } from "@/lib/types";
 export default function ResultsPage() {
   const searchParams = useSearchParams();
   const [result, setResult] = useState<RecommendationResult | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    const savedId = searchParams.get("saved");
     const dataParam = searchParams.get("data");
+    // If we navigated with inline data from the questionnaire, use that first.
     if (dataParam) {
       try {
         const parsed = JSON.parse(
           decodeURIComponent(dataParam),
         ) as RecommendationResult;
         setResult(parsed);
+        setError(null);
+        return;
       } catch {
         setResult(null);
+        setError("Could not read recommendation data.");
+        return;
       }
     }
+
+    // If we have a saved roadmap id, fetch it from the API and map it into
+    // the same shape that the page expects for display.
+    if (savedId) {
+      setLoading(true);
+      setError(null);
+      fetch(`/api/saved-roadmaps/${savedId}`)
+        .then(async (res) => {
+          if (!res.ok) {
+            const data = await res.json().catch(() => ({}));
+            throw new Error(data.error ?? "Could not load saved roadmap.");
+          }
+          return res.json();
+        })
+        .then((data) => {
+          const rawRoadmap = Array.isArray(data.roadmap) ? data.roadmap : [];
+
+          const phases =
+            rawRoadmap.map((phase: any) => {
+              // Handle different possible stored roadmap formats and normalise
+              // them to { title, duration, topics[] } for display.
+              const title =
+                phase.title ??
+                phase.stage ??
+                (typeof phase.phase === "number"
+                  ? `Phase ${phase.phase}`
+                  : "Phase");
+
+              const duration =
+                typeof phase.duration === "string"
+                  ? phase.duration
+                  : typeof phase.duration_weeks === "number"
+                    ? `${phase.duration_weeks} weeks`
+                    : "";
+
+              const topics =
+                Array.isArray(phase.topics) && phase.topics.length > 0
+                  ? phase.topics
+                  : Array.isArray(phase.projects)
+                    ? phase.projects
+                    : [];
+
+              return {
+                title,
+                duration,
+                topics,
+              };
+            }) ?? [];
+
+          const mapped: RecommendationResult = {
+            stack: data.stack_name ?? "Saved roadmap",
+            reason: data.reasoning ?? "",
+            roadmap: { phases },
+          };
+
+          setResult(mapped);
+        })
+        .catch((e: unknown) => {
+          setResult(null);
+          setError(
+            e instanceof Error ? e.message : "Unable to load saved roadmap.",
+          );
+        })
+        .finally(() => {
+          setLoading(false);
+        });
+    } else {
+      setResult(null);
+      setError(null);
+    }
   }, [searchParams]);
+
+  if (loading) {
+    return (
+      <div className="max-w-xl mx-auto text-center py-12">
+        <p className="text-slate-600 dark:text-slate-400 mb-2">
+          Loading your roadmap…
+        </p>
+      </div>
+    );
+  }
 
   if (!result) {
     return (
       <div className="max-w-xl mx-auto text-center py-12">
         <p className="text-slate-600 dark:text-slate-400 mb-4">
-          No results. Complete the questionnaire to see stacks for your interest.
+          {error
+            ? error
+            : "No results. Complete the questionnaire to see stacks for your interest."}
         </p>
         <Button asChild>
           <Link href="/protected/questionnaire">Start questionnaire</Link>
