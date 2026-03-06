@@ -87,7 +87,6 @@ export default async function DashboardPage() {
           <div className="flex flex-wrap items-center gap-3">
             <Button
               asChild
-              size="lg"
               className="inline-flex items-center gap-2 rounded-full bg-teal-500 px-4 py-2 text-sm font-semibold text-slate-950 shadow-lg shadow-teal-500/40 transition hover:-translate-y-0.5 hover:bg-teal-400 hover:shadow-xl hover:shadow-teal-400/50"
             >
               <Link href="/protected/questionnaire">
